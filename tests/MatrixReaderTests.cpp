@@ -1,18 +1,31 @@
 #include <gtest/gtest.h>
+#include <vector>
 
-TEST(MatrixReader, read) {
-    std::vector<float> grid_func{1, 1, 1, 1, 1, 1, 1, 1, 1};
-    Grid grid1 = Grid{grid_func, 1};
+#include "../src/MatrixCSR3.h"
+#include "../src/MatrixReader.h"
 
-    ClosestNeighborGridInterpolation c = ClosestNeighborGridInterpolation{};
-    std::vector<float> new_grid_func = grid1.downscale(2, &c).getGridFunction();
-    std::vector<float> assert_grid_func{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+TEST(MatrixReader, read2x2Matrix) {
+    MatrixCSR3 matrix = MatrixReader::read("../source/matrix2x2.txt");
 
-    ASSERT_EQ(assert_grid_func.size(), new_grid_func.size());
+    std::vector<double> assert_values{1, 4};
+    std::vector<size_t> assert_columns{0, 1};
+    std::vector<size_t> assert_row_indices{0, 1, 2};
+    
+    EXPECT_EQ(matrix.getValues(), assert_values);
+    EXPECT_EQ(matrix.getColumns(), assert_columns);
+    EXPECT_EQ(matrix.getRowIndices(), assert_row_indices);
+}
 
-    for (size_t i = 0; i < assert_grid_func.size(); ++i) {
-        EXPECT_NEAR(new_grid_func[i], assert_grid_func[i], 1e-6);
-    }
+TEST(MatrixReader, readEmptyMatrix) {
+    MatrixCSR3 matrix = MatrixReader::read("../source/emptyMatrix.txt");
+
+    std::vector<double> assert_values(0);
+    std::vector<size_t> assert_columns(0);
+    std::vector<size_t> assert_row_indices{0};
+
+    EXPECT_EQ(matrix.getValues(), assert_values);
+    EXPECT_EQ(matrix.getColumns(), assert_columns);
+    EXPECT_EQ(matrix.getRowIndices(), assert_row_indices);
 }
 
 /*void testUnarMinus() {
@@ -154,9 +167,9 @@ void testGetByIndex() {
     std::cout << std::endl;
 
     std::cout << matrix[{1,1}] << std::endl;
-}*/
+}
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
-}
+}*/

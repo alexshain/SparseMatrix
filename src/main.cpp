@@ -145,9 +145,9 @@ void testGetByIndex() {
 }
 
 int main() {
-    //testUnarMinus();
+    testUnarMinus();
     //testGetByIndex();
-    testMinus();
+    //testMinus();
     //testMultipleOnScalar();
     //testPlus();
     return 0;

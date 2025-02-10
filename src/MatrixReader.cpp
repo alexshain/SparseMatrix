@@ -3,6 +3,7 @@
 #include "MatrixReader.h"
 
 MatrixCSR3 MatrixReader::read(std::filesystem::path file_path) {
+    //обработать неправильный формат данных в файле 
     std::ifstream matrix_file(file_path);
     size_t row_number;
     size_t column_number;
