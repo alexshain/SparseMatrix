@@ -2,13 +2,17 @@
 
 #include <filesystem>
 
-#include "MatrixDataByIndex.h"
 #include "MatrixCSR3.h"
 
 class MatrixReader {
-    public:
+    struct MatrixElement {
+        double value;
+        size_t row_ind;
+        size_t column_ind;
+    };
+public:
     static MatrixCSR3 read(std::filesystem::path file_path);
 
-    private:
+private:
     static void setCSR3FormatData(MatrixCSR3 &matrix, std::ifstream &matrix_file);
 };
