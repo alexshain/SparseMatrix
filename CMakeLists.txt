@@ -13,7 +13,7 @@ add_library(my_lib src/MatrixCSR3.cpp src/MatrixReader.cpp)
 #add_executable(my_lib src/main.cpp src/MatrixCSR3.cpp src/MatrixReader.cpp)
 
 # Файлы с тестами
-add_executable(run_tests tests/MatrixReaderTests.cpp)
+add_executable(run_tests tests/MatrixReaderTests.cpp tests/MatrixOperationsTests.cpp tests/SliceMatrixTests.cpp)
 target_link_libraries(run_tests my_lib GTest::GTest GTest::Main)
 
 # Регистрация тестов

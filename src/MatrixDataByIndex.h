@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-struct MatrixDataByIndex {
+struct MatrixElement {
     double value;
     size_t row_ind;
     size_t column_ind;

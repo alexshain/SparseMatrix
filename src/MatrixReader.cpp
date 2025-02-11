@@ -11,7 +11,10 @@ MatrixCSR3 MatrixReader::read(std::filesystem::path file_path) {
     matrix_file >> row_number 
                 >> column_number 
                 >> non_zero_elements_number;
-    MatrixCSR3 matrix = MatrixCSR3(row_number, column_number, non_zero_elements_number);
+    std::vector<double> values(non_zero_elements_number);
+    std::vector<size_t> columns(non_zero_elements_number);
+    std::vector<size_t> row_index(row_number + 1);
+    MatrixCSR3 matrix = MatrixCSR3(values, columns, row_index);
     setCSR3FormatData(matrix, matrix_file);
     return matrix;
 }
@@ -23,7 +26,7 @@ void MatrixReader::setCSR3FormatData(MatrixCSR3 &matrix, std::ifstream &matrix_f
     size_t row_index_value = 1;
     matrix.setRowIndex(counter, 0);
     for(size_t i = 0; i < matrix.getValues().size(); i++) {
-        MatrixDataByIndex index_data;
+        MatrixElement index_data;
         matrix_file >> index_data.row_ind 
                     >> index_data.column_ind
                     >> index_data.value;

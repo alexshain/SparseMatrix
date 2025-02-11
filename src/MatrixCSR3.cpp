@@ -4,38 +4,19 @@
 #include <fstream>
 #include <algorithm>
 
-MatrixCSR3::MatrixCSR3(size_t row_number, size_t column_number, size_t non_zero_elements_number) : 
-    row_number_(row_number),
-    column_number_(column_number),
-    non_zero_elements_number_(non_zero_elements_number),
-    values_(non_zero_elements_number),
-    columns_(non_zero_elements_number),
-    row_index_(row_number + 1) {}
-
-MatrixCSR3::MatrixCSR3(std::vector<double> values, std::vector<size_t> columns, std::vector<size_t> row_index, size_t column_number) : 
+MatrixCSR3::MatrixCSR3(std::vector<double> values, std::vector<size_t> columns, std::vector<size_t> row_index) : 
     values_(values),
     columns_(columns),
     row_index_(row_index),
     row_number_(row_index.size() - 1),
-    column_number_(column_number),
+    column_number_(columns.size()),
     non_zero_elements_number_(values.size()) {}
-
-MatrixCSR3 MatrixCSR3::operator*(double scalar) const {
-    MatrixCSR3 result{row_number_, column_number_, non_zero_elements_number_};
-    result.columns_ = columns_;
-    result.row_index_ = row_index_;
-    for(size_t i = 0; i < values_.size(); i++) {
-        result.values_[i] = values_[i] * scalar;
-    }
-    return result;
-}
 
 MatrixCSR3 MatrixCSR3::operator+(const MatrixCSR3 &other) const {
     if(other.column_number_ != column_number_ && other.row_number_ != row_number_) {
         throw "The matrices have different sizes!";
     }
-    MatrixCSR3 result{row_number_, column_number_, non_zero_elements_number_};
-    result = *this - other*(-1);
+    MatrixCSR3 result = *this - other*(-1);
     return result;
 }
 
@@ -43,9 +24,22 @@ MatrixCSR3 MatrixCSR3::operator-() {
     return *this * (-1);
 }
 
+MatrixCSR3 operator*(const MatrixCSR3& matrix, double scalar) {
+    std::vector<double> result_values(matrix.getValues().size());
+    for(size_t i = 0; i < result_values.size(); i++) {
+        result_values[i] = matrix.getValues()[i] * scalar;
+    }
+    MatrixCSR3 result{result_values, matrix.getColumns(), matrix.getRowIndices()};
+    return result;
+}
+
+MatrixCSR3 operator*(double scalar, const MatrixCSR3& matrix) {
+    return matrix * scalar;
+}
+
 MatrixCSR3 MatrixCSR3::operator-(const MatrixCSR3 &other) const {
     if(other.column_number_ != column_number_ && other.row_number_ != row_number_) {
-        throw "The matrices have different sizes!";
+        throw std::runtime_error("The matrices have different sizes!");
     }
     std::vector<size_t> temp_columns;
     std::vector<size_t> temp_row_index;
@@ -97,12 +91,13 @@ void MatrixCSR3::getIntermediateValues(const MatrixCSR3 &other, std::vector<doub
         size_t start = temp_row_index[i-1];
         size_t end = temp_row_index[i];
         for(size_t j = start; j < end; j++) {
-            if(containsElementInPosition(i, temp_columns[j], *this)) {
+            size_t column = temp_columns[j];
+            if(containsElementInPosition(i, column, *this)) {
                 temp_left_values[j] = *(current_iter++);
             } else {
                 temp_left_values[j] = 0;
             }
-            if(containsElementInPosition(i, temp_columns[j], other)) {
+            if(containsElementInPosition(i, column, other)) {
                 temp_right_values[j] = (*other_iter++);
             } else {
                 temp_right_values[j] = 0;
@@ -141,86 +136,60 @@ void MatrixCSR3::getResultFromIntermediateData(MatrixCSR3 &result, std::vector<d
 
 double MatrixCSR3::operator[](std::tuple<size_t, size_t> ind) const {
     if(std::get<0>(ind) > row_number_ - 1 || std::get<1>(ind) > column_number_ - 1) {
-        throw "You have gone beyond the matrix!";
+        throw std::runtime_error("You have gone beyond the matrix!");
     }
     size_t start = row_index_[std::get<0>(ind)];
     size_t end = row_index_[std::get<0>(ind) + 1];
     for(size_t i = start; i < end; i++) {
         auto it = std::find(columns_.begin() + start, columns_.begin() + end, std::get<1>(ind));
+        size_t index = std::distance(columns_.begin(), it);
         if(it != columns_.begin() + end) {
-            return values_[*it + start];
+            return values_[index];
         } else return 0;
     }
 }
 
-MatrixCSR3 MatrixCSR3::slice(size_t row_start, size_t row_end, size_t column_start, size_t colum_end) {
-    sliceParameters slice_params;
-    slice_params.row_start = row_start;
-    slice_params.row_end = row_end; 
-    slice_params.column_start = column_start; 
-    slice_params.colum_end = colum_end;
-
-    std::vector<double> new_values((row_end - row_start)*(colum_end - column_start));
-    std::vector<size_t> new_columns((row_end - row_start)*(colum_end - column_start));
-    std::vector<size_t> new_row_index(row_end - row_start + 1);
-
-
-    //setSliceValuesAndColumns();
-    setSliceValues(new_values, slice_params);
-    setSliceColumns(new_columns, slice_params);
-    setSliceRowIndex(new_row_index, slice_params);
-
-    return MatrixCSR3{new_values, new_columns, new_row_index, colum_end - column_start};
+bool MatrixCSR3::operator==(const MatrixCSR3& other) const {
+    if(values_ == other.values_ && columns_ == other.columns_ && row_index_ == other.row_index_) {
+        return true;
+    } else return false;
 }
 
-void MatrixCSR3::setSliceValuesAndColumns(std::vector<size_t> &new_columns, std::vector<double> &new_values, sliceParameters slice_params) {
-    size_t new_ind = 0;
-    size_t start_ind = row_index_[slice_params.row_start];
-    size_t end_ind = row_index_[slice_params.row_end];
+MatrixCSR3 MatrixCSR3::slice(size_t row_start, size_t row_end, size_t column_start, size_t column_end) {
+    if(row_start < 0 || column_start < 0 || row_end < 0 || column_end < 0) {
+        throw std::runtime_error("The value of the parameters cannot be negative!");
+    }
+    if(row_end > row_number_ || column_end > column_number_) {
+        throw std::runtime_error("row_end or colum_end exceeds matrix size!");
+    }
+    if(row_start > row_end || column_start > column_end) {
+        throw std::runtime_error("Start parameters should not exceed end parameters!");
+    }
+
+    std::vector<double> new_values{};
+    std::vector<size_t> new_columns{};
+    std::vector<size_t> new_row_indices{};
+
+    size_t start_ind = row_index_[row_start];
+    size_t end_ind = row_index_[row_end];
     for(size_t i = start_ind; i < end_ind; i++) {
-        if(columns_[i] >= slice_params.column_start && columns_[i] < slice_params.colum_end) {
-            new_values[new_ind] = values_[i];
-            new_columns[new_ind] = columns_[i] - slice_params.column_start;
-            new_ind++;
+        if(columns_[i] >= column_start && columns_[i] < column_end) {
+            new_values.push_back(values_[i]);
+            new_columns.push_back(columns_[i] - column_start);
         }
     }
-}
 
-void MatrixCSR3::setSliceValues(std::vector<double> &new_values, sliceParameters slice_params) {
-    size_t new_value_ind = 0;
-    size_t start_ind = row_index_[slice_params.row_start];
-    size_t end_ind = row_index_[slice_params.row_end];
-    for(size_t i = start_ind; i < end_ind; i++) {
-        if(columns_[i] >= slice_params.column_start && columns_[i] < slice_params.colum_end) {
-            new_values[new_value_ind] = values_[i];
-            new_value_ind++;
-        }
-    }
-}
-
-//убрать бы дублирование
-void MatrixCSR3::setSliceColumns(std::vector<size_t> &new_columns, sliceParameters slice_params) {
-    size_t new_columns_ind = 0;
-    size_t start_ind = row_index_[slice_params.row_start];
-    size_t end_ind = row_index_[slice_params.row_end];
-    for(size_t i = start_ind; i < end_ind; i++) {
-        if(columns_[i] >= slice_params.column_start && columns_[i] < slice_params.colum_end) {
-            new_columns[new_columns_ind] = columns_[i] - slice_params.column_start;
-            new_columns_ind++;
-        }
-    }
-}
-
-void MatrixCSR3::setSliceRowIndex(std::vector<size_t> &new_row_indices, sliceParameters slice_params) {
     size_t counter = 0;
-    for(size_t i = slice_params.row_start; i <= slice_params.row_end; i++) {
-        new_row_indices[i - slice_params.row_start] = counter;
+    for(size_t i = row_start; i <= row_end; i++) {
+        new_row_indices.push_back(counter);
         for(size_t j = row_index_[i]; j < row_index_[i+1]; j++) {
-            if(columns_[j] >= slice_params.column_start && columns_[j] < slice_params.colum_end) {
+            if(columns_[j] >= column_start && columns_[j] < column_end) {
                 counter++;
             } 
         }
     }
+
+    return MatrixCSR3{new_values, new_columns, new_row_indices};
 }
 
 std::vector<double> MatrixCSR3::getValues() const {
@@ -236,14 +205,14 @@ std::vector<size_t> MatrixCSR3::getRowIndices() const {
 }
 
 //поработать над инкапсуляцией 
-void MatrixCSR3::setValue(double value, size_t non_zero_element_ind) {
-    values_[non_zero_element_ind] = value;
+void MatrixCSR3::setValue(double value, size_t ind) {
+    values_[ind] = value;
 }
 
-void MatrixCSR3::setColumn(size_t column_ind, size_t non_zero_element_ind) {
-    columns_[non_zero_element_ind] = column_ind;
+void MatrixCSR3::setColumn(size_t column_ind, size_t ind) {
+    columns_[ind] = column_ind;
 }
 
-void MatrixCSR3::setRowIndex(size_t row_index_value, size_t arr_ind) {
-    row_index_[arr_ind] = row_index_value;
+void MatrixCSR3::setRowIndex(size_t row_index_value, size_t ind) {
+    row_index_[ind] = row_index_value;
 }
