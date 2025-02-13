@@ -9,11 +9,11 @@ class MatrixCSR3 {
     size_t non_zero_elements_number_;
     std::vector<double> values_;
     std::vector<size_t> columns_;
-    std::vector<size_t> row_index_;
+    std::vector<size_t> row_indices_;
 
 public:
     MatrixCSR3() = default;
-    MatrixCSR3(std::vector<double> values, std::vector<size_t> columns, std::vector<size_t> row_index);
+    MatrixCSR3(std::vector<double> values, std::vector<size_t> columns, std::vector<size_t> row_indices_);
 
     MatrixCSR3 operator+(const MatrixCSR3 &other) const;
     MatrixCSR3 operator-(const MatrixCSR3 &other) const;    
@@ -22,18 +22,14 @@ public:
     double operator[](std::tuple<size_t, size_t> ind) const;
     bool operator==(const MatrixCSR3& other) const;
     MatrixCSR3 slice(size_t row_start, size_t row_end,
-			        size_t column_start, size_t colum_end);
+			        size_t column_start, size_t colum_end) const;
 
     std::vector<double> getValues() const;
     std::vector<size_t> getColumns() const;
     std::vector<size_t> getRowIndices() const;
 
-    void setValue(double value, size_t ind);
-    void setColumn(size_t column_ind, size_t ind);
-    void setRowIndex(size_t row_index_value, size_t ind);
-
 private:
-    void getIntermediateColumnsAndRowIndexes(const MatrixCSR3 &other, std::vector<size_t> &temp_row_index,
+    void getIntermediateColumnsAndRowIndices(const MatrixCSR3 &other, std::vector<size_t> &temp_row_index,
                                 std::vector<size_t> &temp_columns) const;
     void getIntermediateValues(const MatrixCSR3 &other, std::vector<double> &temp_values1, std::vector<double> &temp_values2, 
                                 std::vector<size_t> &temp_columns, std::vector<size_t> &temp_row_index) const;

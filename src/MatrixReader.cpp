@@ -2,7 +2,7 @@
 
 #include "MatrixReader.h"
 
-MatrixCSR3 MatrixReader::read(std::filesystem::path file_path) {
+/*MatrixCSR3 MatrixReader::read(std::filesystem::path file_path) {
     //обработать неправильный формат данных в файле 
     std::ifstream matrix_file(file_path);
     size_t row_number;
@@ -17,10 +17,10 @@ MatrixCSR3 MatrixReader::read(std::filesystem::path file_path) {
     MatrixCSR3 matrix = MatrixCSR3(values, columns, row_index);
     setCSR3FormatData(matrix, matrix_file);
     return matrix;
-}
+}*/
 
 //divide
-void MatrixReader::setCSR3FormatData(MatrixCSR3 &matrix, std::ifstream &matrix_file) {
+/*void MatrixReader::setCSR3FormatData(MatrixCSR3 &matrix, std::ifstream &matrix_file) {
     size_t ind = 0;
     size_t counter = 0;
     size_t row_index_value = 1;
@@ -48,4 +48,48 @@ void MatrixReader::setCSR3FormatData(MatrixCSR3 &matrix, std::ifstream &matrix_f
         matrix.setRowIndex(counter, row_index_value);
         row_index_value++;
     }
+}*/
+
+MatrixCSR3 MatrixReader::read(std::filesystem::path file_path) {
+    //обработать неправильный формат данных в файле 
+    std::ifstream matrix_file(file_path);
+    size_t row_number;
+    size_t column_number;
+    size_t non_zero_elements_number;
+    matrix_file >> row_number 
+                >> column_number 
+                >> non_zero_elements_number;
+    std::vector<double> values(non_zero_elements_number);
+    std::vector<size_t> columns(non_zero_elements_number);
+    std::vector<size_t> row_indices(row_number + 1);
+
+    size_t ind = 0;
+    size_t sum_of_non_zero_values = 0;
+    size_t row_index_value = 1;
+    row_indices[0] = 0;
+    for(size_t i = 0; i < non_zero_elements_number; i++) {
+        MatrixElement index_data;
+        matrix_file >> index_data.row_ind 
+                    >> index_data.column_ind
+                    >> index_data.value;
+        values[i] = index_data.value;
+        columns[i] = index_data.column_ind;
+        
+        if(ind < index_data.row_ind) {
+            while (ind < index_data.row_ind) {
+                row_indices[row_index_value] = sum_of_non_zero_values;
+                ind++;
+                row_index_value++;
+            }
+            sum_of_non_zero_values++;
+        } else if(index_data.row_ind == ind) {
+            sum_of_non_zero_values++;
+        } 
+    }
+    while (row_index_value < row_indices.size()) {
+        row_indices[row_index_value] = sum_of_non_zero_values;
+        row_index_value++;
+    }
+
+    return MatrixCSR3(values, columns, row_indices);
 }
