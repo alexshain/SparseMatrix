@@ -10,9 +10,17 @@ class MatrixReader {
         size_t row_ind;
         size_t column_ind;
     };
+    
 public:
     static MatrixCSR3 read(std::filesystem::path file_path);
 
 private:
-    static void setCSR3FormatData(MatrixCSR3 &matrix, std::ifstream &matrix_file);
+    static void readFileHeader(std::ifstream &matrix_file,
+                               std::vector<double> &values, 
+                               std::vector<size_t> &columns, 
+                               std::vector<size_t> &row_indices);
+    static void readMatrixData(std::ifstream &matrix_file,
+                               std::vector<double> &values, 
+                               std::vector<size_t> &columns, 
+                               std::vector<size_t> &row_indices);
 };
