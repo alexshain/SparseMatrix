@@ -45,15 +45,13 @@ MatrixCSR3 MatrixCSR3::operator-(const MatrixCSR3 &other) const {
     std::vector<size_t> temp_row_index;
     std::vector<double> temp_left_values;
     std::vector<double> temp_right_values; 
-    getIntermediateColumnsAndRowIndices(other, temp_row_index, temp_columns);
-    getIntermediateValues(other, temp_left_values, temp_right_values, temp_columns, temp_row_index);
+    getTempColumnsAndRowIndices(other, temp_row_index, temp_columns);
+    getTempValues(other, temp_left_values, temp_right_values, temp_columns, temp_row_index);
 
-    MatrixCSR3 result{};
-    getResultFromIntermediateData(result, temp_left_values, temp_right_values, temp_columns, temp_row_index);
-    return result;
+    return getResultFromTempData(temp_left_values, temp_right_values, temp_columns, temp_row_index);
 }
 
-void MatrixCSR3::getIntermediateColumnsAndRowIndices(const MatrixCSR3 &other, std::vector<size_t> &temp_row_index,std::vector<size_t> &temp_columns) const {
+void MatrixCSR3::getTempColumnsAndRowIndices(const MatrixCSR3 &other, std::vector<size_t> &temp_row_index, std::vector<size_t> &temp_columns) const {
     size_t row_index_element = 0;
     temp_row_index.push_back(row_index_element);
     for(size_t i = 1; i < row_indices_.size(); i++) {
@@ -81,7 +79,7 @@ void MatrixCSR3::getIntermediateColumnsAndRowIndices(const MatrixCSR3 &other, st
     }
 }
 
-void MatrixCSR3::getIntermediateValues(const MatrixCSR3 &other, std::vector<double> &temp_left_values, std::vector<double> &temp_right_values, 
+void MatrixCSR3::getTempValues(const MatrixCSR3 &other, std::vector<double> &temp_left_values, std::vector<double> &temp_right_values, 
                                 std::vector<size_t> &temp_columns, std::vector<size_t> &temp_row_index) const {
     size_t vector_size = temp_columns.size();
     temp_left_values.resize(vector_size);
@@ -113,8 +111,9 @@ bool MatrixCSR3::containsElementInPosition(size_t ind_i, size_t column, const Ma
     return std::find(first_column_in_row, lust_column_in_row, column) != lust_column_in_row;
 }
 
-void MatrixCSR3::getResultFromIntermediateData(MatrixCSR3 &result, std::vector<double> &temp_values1, 
+MatrixCSR3 MatrixCSR3::getResultFromTempData(std::vector<double> &temp_values1, 
                                 std::vector<double> &temp_values2, std::vector<size_t> &temp_columns, std::vector<size_t> &temp_row_index) const {
+    MatrixCSR3 result;
     size_t row_index_element = 0;
     result.row_indices_.push_back(row_index_element);
     for(size_t i = 1; i < temp_row_index.size(); i++) {
@@ -133,6 +132,7 @@ void MatrixCSR3::getResultFromIntermediateData(MatrixCSR3 &result, std::vector<d
     result.row_number_ = row_number_;
     result.column_number_ = column_number_;
     result.non_zero_elements_number_ = result.values_.size();
+    return result;
 }
 
 double MatrixCSR3::operator[](std::tuple<size_t, size_t> ind) const {

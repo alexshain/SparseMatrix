@@ -3,7 +3,6 @@
 #include "MatrixReader.h"
 
 MatrixCSR3 MatrixReader::read(std::filesystem::path file_path) {
-    //обработать неправильный формат данных в файле 
     std::ifstream matrix_file(file_path);
     static std::vector<double> values;
     static std::vector<size_t> columns;
@@ -32,7 +31,7 @@ void MatrixReader::readMatrixData(std::ifstream &matrix_file,
                                   std::vector<double> &values, 
                                   std::vector<size_t> &columns, 
                                   std::vector<size_t> &row_indices) {
-    size_t ind = 0;
+    size_t current_row_ind = 0;
     size_t sum_of_non_zero_values = 0;
     size_t row_index_value = 1;
     row_indices[0] = 0;
@@ -44,9 +43,9 @@ void MatrixReader::readMatrixData(std::ifstream &matrix_file,
         values[i] = element.value;
         columns[i] = element.column_ind;
         
-        while (ind < element.row_ind) {
+        while (current_row_ind < element.row_ind) {
             row_indices[row_index_value] = sum_of_non_zero_values;
-            ind++;
+            current_row_ind++;
             row_index_value++;
         }
         sum_of_non_zero_values++;

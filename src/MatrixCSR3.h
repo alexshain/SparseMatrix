@@ -29,11 +29,11 @@ public:
     std::vector<size_t> getRowIndices() const;
 
 private:
-    void getIntermediateColumnsAndRowIndices(const MatrixCSR3 &other, std::vector<size_t> &temp_row_index,
+    void getTempColumnsAndRowIndices(const MatrixCSR3 &other, std::vector<size_t> &temp_row_index,
                                 std::vector<size_t> &temp_columns) const;
-    void getIntermediateValues(const MatrixCSR3 &other, std::vector<double> &temp_values1, std::vector<double> &temp_values2, 
+    void getTempValues(const MatrixCSR3 &other, std::vector<double> &temp_values1, std::vector<double> &temp_values2, 
                                 std::vector<size_t> &temp_columns, std::vector<size_t> &temp_row_index) const;
-    void getResultFromIntermediateData(MatrixCSR3 &result, std::vector<double> &temp_values1, std::vector<double> &temp_values2,
+    MatrixCSR3 getResultFromTempData(std::vector<double> &temp_values1, std::vector<double> &temp_values2,
                                 std::vector<size_t> &temp_columns, std::vector<size_t> &temp_row_index) const;
     bool containsElementInPosition(size_t ind_i, size_t column, const MatrixCSR3 &matrix) const;
 };
