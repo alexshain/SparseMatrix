@@ -7,18 +7,8 @@
 using SparseMatrix::MatrixReader;
 using SparseMatrix::MatrixCSR3;
 
-void print_current_directory() {
-    char buff[PATH_MAX];
-    if (getcwd(buff, sizeof(buff)) != NULL) {
-        std::cout << "Current directory: " << buff << std::endl;
-    } else {
-        std::cerr << "Error getting current directory." << std::endl;
-    }
-}
-
 TEST(MatrixReader, read2x2Matrix) {
-    print_current_directory(); 
-    MatrixCSR3 matrix = MatrixReader::read("..//../tests/matrix2x2.txt");
+    MatrixCSR3 matrix = MatrixReader::read("..//../tests/source/matrix2x2.txt");
 
     std::vector<double> assert_values{1, 4};
     std::vector<size_t> assert_columns{0, 1};
@@ -30,7 +20,7 @@ TEST(MatrixReader, read2x2Matrix) {
 }
 
 TEST(MatrixReader, readEmptyMatrix) {
-    MatrixCSR3 matrix = MatrixReader::read("..//../tests/emptyMatrix.txt");
+    MatrixCSR3 matrix = MatrixReader::read("..//../tests/source/emptyMatrix.txt");
 
     std::vector<double> assert_values(0);
     std::vector<size_t> assert_columns(0);
