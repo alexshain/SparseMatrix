@@ -1,7 +1,9 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-#include "../src/MatrixCSR3.h"
+#include "../include/MatrixCSR3.h"
+
+using SparseMatrix::MatrixCSR3;
 
 TEST(MatrixOperations, unarMinus) {
     std::vector<double> values{1, 4};
