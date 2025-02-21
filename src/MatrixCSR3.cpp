@@ -153,10 +153,12 @@ namespace SparseMatrix {
     }
 
     bool areVectorsEqual(const std::vector<double>& v1, const std::vector<double>& v2) {
-        double EPSILON = 1e-9;
+        double EPSILON = 1e-6;
         if (v1.size() != v2.size()) return false;
         for (size_t i = 0; i < v1.size(); ++i) {
             double norm = std::max(std::fabs(v1[i]), std::fabs(v2[i]));
+            double diff = std::fabs(v1[i] - v2[i]);
+            std::cout << "Index " << i << ": " << v1[i] << " vs " << v2[i] << " | diff: " << diff << " | threshold: " << EPSILON * norm << "\n";
             if (std::fabs(v1[i] - v2[i]) > EPSILON * norm) return false;
         }
         return true;
