@@ -19,7 +19,6 @@ namespace SparseMatrix {
         MatrixCSR3 operator+(const MatrixCSR3 &other) const;
         MatrixCSR3 operator-(const MatrixCSR3 &other) const;    
         MatrixCSR3 operator-();
-
         double operator[](std::tuple<size_t, size_t> ind) const;
         bool operator==(const MatrixCSR3& other) const;
         MatrixCSR3 slice(size_t row_start, size_t row_end,
@@ -28,6 +27,8 @@ namespace SparseMatrix {
         std::vector<double> getValues() const;
         std::vector<size_t> getColumns() const;
         std::vector<size_t> getRowIndices() const;
+
+        void print() const;
 
     private:
         void getTempColumnsAndRowIndices(const MatrixCSR3 &other, std::vector<size_t> &temp_row_index,
