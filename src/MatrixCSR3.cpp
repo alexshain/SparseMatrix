@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <cmath>
 
 namespace SparseMatrix {
     MatrixCSR3::MatrixCSR3(std::vector<double> values, std::vector<size_t> columns, std::vector<size_t> row_indices) : 
