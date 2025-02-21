@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <cmath>
 
 namespace SparseMatrix {
     MatrixCSR3::MatrixCSR3(std::vector<double> values, std::vector<size_t> columns, std::vector<size_t> row_indices) : 
@@ -122,7 +123,7 @@ namespace SparseMatrix {
             size_t end = temp_row_index[i];
             for(size_t j = start; j < end; j++) {
                 double val_result = temp_values1[j] - temp_values2[j];
-                if(abs(val_result) > 1e-10) {
+                if(fabs(val_result) > 1e-10) {
                     result.values_.push_back(val_result);
                     result.columns_.push_back(temp_columns[j]);
                     row_index_element++;
@@ -151,10 +152,18 @@ namespace SparseMatrix {
         }
     }
 
+    bool areVectorsEqual(const std::vector<double>& v1, const std::vector<double>& v2) {
+        double EPSILON = 1e-6;
+        if (v1.size() != v2.size()) return false;
+        for (size_t i = 0; i < v1.size(); ++i) {
+            double norm = std::max(std::fabs(v1[i]), std::fabs(v2[i]));
+            if (std::fabs(v1[i] - v2[i]) > EPSILON * norm) return false;
+        }
+        return true;
+    }
+
     bool MatrixCSR3::operator==(const MatrixCSR3& other) const {
-        if(values_ == other.values_ && columns_ == other.columns_ && row_indices_ == other.row_indices_) {
-            return true;
-        } else return false;
+        return areVectorsEqual(values_, other.values_) && columns_ == other.columns_ && row_indices_ == other.row_indices_;
     }
 
     MatrixCSR3 MatrixCSR3::slice(size_t row_start, size_t row_end, size_t column_start, size_t column_end) const {
