@@ -214,4 +214,24 @@ namespace SparseMatrix {
     std::vector<size_t> MatrixCSR3::getRowIndices() const {
         return row_indices_;
     }
+
+    void MatrixCSR3::print() const {
+        std::cout << "Values = {";
+        for(size_t i = 0; i < values_.size() - 1; ++i) {
+            std::cout << values_[i] << ", ";
+        }
+        std::cout << values_[values_.size() - 1] << "}" << std::endl;
+
+        std::cout << "Columns = {";
+        for(size_t i = 0; i < columns_.size() - 1; ++i) {
+            std::cout << columns_[i] << ", ";
+        }
+        std::cout << columns_[columns_.size() - 1] << "}" << std::endl;
+
+        std::cout << "Row Indices = {";
+        for(size_t i = 0; i < row_indices_.size() - 1; ++i) {
+            std::cout << row_indices_[i] << ", ";
+        }
+        std::cout << row_indices_[row_indices_.size() - 1] << "}" << std::endl;
+    }
 }
