@@ -40,6 +40,10 @@ TEST(MatrixOperations, binarMinus) {
     std::vector<size_t> assert_row_indices{0, 2, 2};
     MatrixCSR3 assert_matrix{assert_values, assert_columns, assert_row_indices};
 
+    for(size_t i = 0; i < result_matrix.getValues().size(); ++i) {
+        std::cout << result_matrix.getValues()[i] << std::endl;
+    }
+
     EXPECT_EQ(result_matrix.getValues(), assert_values);
     EXPECT_EQ(result_matrix.getColumns(), assert_columns);
     EXPECT_EQ(result_matrix.getRowIndices(), assert_row_indices);

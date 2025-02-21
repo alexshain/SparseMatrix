@@ -123,7 +123,7 @@ namespace SparseMatrix {
             size_t end = temp_row_index[i];
             for(size_t j = start; j < end; j++) {
                 double val_result = temp_values1[j] - temp_values2[j];
-                if(abs(val_result) > 1e-10) {
+                if(fabs(val_result) > 1e-10) {
                     result.values_.push_back(val_result);
                     result.columns_.push_back(temp_columns[j]);
                     row_index_element++;
@@ -157,8 +157,6 @@ namespace SparseMatrix {
         if (v1.size() != v2.size()) return false;
         for (size_t i = 0; i < v1.size(); ++i) {
             double norm = std::max(std::fabs(v1[i]), std::fabs(v2[i]));
-            double diff = std::fabs(v1[i] - v2[i]);
-            std::cout << "Index " << i << ": " << v1[i] << " vs " << v2[i] << " | diff: " << diff << " | threshold: " << EPSILON * norm << "\n";
             if (std::fabs(v1[i] - v2[i]) > EPSILON * norm) return false;
         }
         return true;
