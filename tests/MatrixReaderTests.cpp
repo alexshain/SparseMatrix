@@ -13,7 +13,7 @@ TEST(MatrixReader, read2x2Matrix) {
     std::vector<double> assert_values{1, 4};
     std::vector<size_t> assert_columns{0, 1};
     std::vector<size_t> assert_row_indices{0, 1, 2};
-    
+
     EXPECT_EQ(matrix.getValues(), assert_values);
     EXPECT_EQ(matrix.getColumns(), assert_columns);
     EXPECT_EQ(matrix.getRowIndices(), assert_row_indices);
